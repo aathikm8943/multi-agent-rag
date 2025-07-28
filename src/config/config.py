@@ -1,0 +1,1 @@
+MODEL_NAME = "qwen/qwen-2.5-72b-instruct:free"
