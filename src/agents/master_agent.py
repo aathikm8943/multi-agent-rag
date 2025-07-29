@@ -7,6 +7,7 @@ from autogen_ext.models.ollama import OllamaChatCompletionClient
 from dotenv import load_dotenv
 import os
 import datetime
+import re
 
 from src.agents.code_review_agents.mulesoft_code_review_agent import MulesoftCodeReviewAgent
 from src.agents.code_review_agents.general_code_review_agent import GeneralCodeReviewAgent
@@ -41,25 +42,18 @@ class MasterAgent():
         return ollama_client
 
     def AgentConfig(self):
-        open_router_model_client = self._ModelConfig()
+        model_client = self._ModelConfig()
 
         assistant_agent = AssistantAgent(
             name = 'master_agent',
-            model_client = open_router_model_client,
+            model_client = model_client,
             system_message='You are a helpful assistant Agent for mulesoft code review. You will assist in reviewing code and providing suggestions.'
         )
-
-        # Create a SelectorGroupChat with the model client
-        # selector_group_chat = SelectorGroupChat(
-        #     name='mulesoft_code_review_agent',
-        #     model_client=open_router_model_client,
-        #     termination_condition=TextMentionTermination(mention='stop')
-        # )
 
         return assistant_agent
     
     async def GroupChatConfig(self):
-        open_router_model_client = self._ModelConfig()
+        model_client = self._ModelConfig()
 
         selector_prompt = """
         You are a router. Select the best agent for the user's query:
@@ -73,11 +67,11 @@ class MasterAgent():
             name = "Code Review Agent",
             selector_prompt=selector_prompt,
             participants=[mulesoft_code_review_agent.AgentConfig(), general_code_review_agent.AgentConfig()],
-            model_client=open_router_model_client,
+            model_client=model_client,
             termination_condition=TextMentionTermination('stop'),
             max_turns=1
         )
-        print("Selector Group Chat Configured successfully.")
+
         return selector_group_chat
 
     async def run_agent(self, query):
@@ -89,7 +83,12 @@ class MasterAgent():
         # Run the agent with the provided query
         result = await assistant_agent.run(task=query)
 
-        return result.messages[-1].content
+        ## Clean up the result to remove any unnecessary formatting
+        response = result.messages[-1].content
+
+        cleaned_response = re.sub(r'<think>.*?</think>', '', response, flags=re.DOTALL)
+
+        return cleaned_response.strip()
 
 if __name__ == "__main__":
     start = datetime.datetime.now()
@@ -101,6 +100,17 @@ if __name__ == "__main__":
     </flow>"""
     # query = "What is mulesoft?"
     # query = "What is mulesoft, how will it help in api development? What are common file types are there?"
+    query = """
+       Please review this MuleSoft code: 
+        ```
+        <flow name="myFlow">
+            <http:listener path="/api/*"/>
+            <db:select>
+                <db:sql>SELECT * FROM users</db:sql>
+            </db:select>
+        </flow>
+        ```
+        """
     response = asyncio.run(master_agent.run_agent(query=query))
     end = datetime.datetime.now()
     print("Agent Response:")
