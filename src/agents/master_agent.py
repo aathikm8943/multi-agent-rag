@@ -47,7 +47,9 @@ class MasterAgent():
         assistant_agent = AssistantAgent(
             name = 'master_agent',
             model_client = model_client,
-            system_message='You are a helpful assistant Agent for mulesoft code review. You will assist in reviewing code and providing suggestions.'
+            system_message="""
+                You are a helpful assistant Agent for code review. You will assist in reviewing code and providing suggestions.
+            """
         )
 
         return assistant_agent
@@ -57,8 +59,9 @@ class MasterAgent():
 
         selector_prompt = """
         You are a router. Select the best agent for the user's query:
+        - If the query is general and not specific to coding or programming languages, then answer by yourself don't dicuss with any agents.
         - If the query is about MuleSoft, DataWeave, Anypoint Studio, or MuleSoft file types (.xml, .dwl, .json), select 'mulesoft_code_review_agent'.
-        - For all other code or general programming questions, select 'common_code_review_agent'.
+        - For all other code or programming questions apart from the mulesoft, select 'common_code_review_agent'.
         Respond with only the agent name.
         """
 

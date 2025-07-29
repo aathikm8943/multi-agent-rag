@@ -9,8 +9,6 @@ from dotenv import load_dotenv
 import os
 
 from src.config.config import MODEL_NAME
-# from src.analysers.sonar_rules import MuleSoftSonarRules
-from src.analysers.mulesoft_rules import MuleSoftRuleEngine
 from typing import List, Dict
 
 # Load API key
@@ -19,9 +17,6 @@ load_dotenv()
 OPEN_ROUTER_API_KEY = os.getenv('OPEN_ROUTER_API_KEY')
 
 class MulesoftCodeReviewAgent():
-
-    def __init__(self):
-        self.mulesoft_sonnar_rules = MuleSoftRuleEngine()
 
     def analyze_code(self, code: str):
         """Analyze MuleSoft code and return results"""

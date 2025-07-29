@@ -24,19 +24,13 @@ async def get_agent_response(code_input):
 
 def initialize_page():
     st.set_page_config(
-        page_title="MuleSoft Code Review Assistant",
+        page_title="Code Review Assistant",
         page_icon="🤖",
         layout="wide"
     )
     st.title("MuleSoft Code Review Assistant 🤖")
     st.markdown("""
     ### Transform Your MuleSoft Development with AI-Powered Code Reviews!
-    
-    ✨ **Specialized in MuleSoft Technologies:**
-    - Mule 4.x Configuration Analysis
-    - DataWeave 2.0 Transformations
-    - APIkit and RAML Validation
-    - Integration Patterns Review
     
     📝 Simply paste your code below for:
     - Instant quality and security analysis
@@ -107,7 +101,7 @@ def main():
     # Review button
     if st.button("Review Code"):
         if code_input:
-            with st.spinner("Analyzing MuleSoft code..."):
+            with st.spinner("Analyzing code..."):
                 # Add user input to history
                 st.session_state.chat_history.append({
                     "role": "user",
